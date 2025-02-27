@@ -1,5 +1,7 @@
-pam_redirector
+pam_unixsock
 ==============
+
+
 
 
 Description
@@ -28,9 +30,6 @@ a short-lived connection to your local socket server. In the example
 server code, we're using a threaded socket server based on Python's
 ThreadedSocketServer, but you could use an asynchronous or
 forking server if you prefer.
-
-This version replaces the version at SF: [https://sourceforge.net/projects/pamredirector/]
-
 
 Protocol
 --------
@@ -65,7 +64,6 @@ Requirements
 Source Install
 --------------
 
-
         make clean
 
         make all
@@ -85,27 +83,6 @@ for Intel 64-bit. Try to build it yourself and report bugs. If you
 have any trouble, ask.
 
 
-Uninstall
----------
-
-
-        sudo rm /lib/security/pam_redirector.so
-        sudo rm /usr/local/sbin/example_server.py
-
-
-
-Usage
------
-
-See example_server.py for a very simple Python socket server that
-allows johnsmith with the password of secret to log in, while everyone
-else is denied.
-
-To start the example server:
-        python example_server.py
-
-
-
 PAM Configuration
 -----------------
 
@@ -115,15 +92,15 @@ as well for each service you want it to authenticate.
 Here's an example PAM configuration file to put in /etc/pam.d:
 
     #%PAM-1.0
-    
+
     auth optional pam_unix.so
     account optional pam_unix.so
-    
+
     # @include common-auth
     # @include common-account
 
     @include common-session
-    
+
     auth required     pam_redirector.so /var/run/pam_redirector/socket
     account required  pam_redirector.so /var/run/pam_redirector/socket
 
@@ -166,3 +143,4 @@ General Public License (GPL), version 2 or later.
 No warranty is provided for this software. Please see the complete terms of
 the GNU General Public License for details or contact the author.
 
+Later version Copyright (c) 2025 Miek Gieben
