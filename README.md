@@ -58,7 +58,6 @@ Requirements
     .. and, of course:
 
 *   A PAM-based system (currently only tested on Linux)
-*   Python 2.0 or greater (to run the example socket server)
 
 
 Source Install
@@ -76,7 +75,6 @@ Source Install
 
         # which is the same as:
         # cp pam_redirector.so /lib/security/
-        # cp example_server.py /usr/local/sbin/
 
 The pre-built pam_redirector.so is built on Debian Wheezy
 for Intel 64-bit. Try to build it yourself and report bugs. If you
@@ -115,21 +113,6 @@ Security Caveats
      The example server creates a socket as /tmp/sock, and this
      is VERY INSECURE, for demonstration only.
 
-
-
-Alternatives
-------------
-
-        Stanford SRP Authentication     [http://srp.stanford.edu]
-        Kerberos                        [http://web.mit.edu/Kerberos/]
-
-
-
-See Also NSS
-------------
-
-
-PAM handles authentication and you might find it useful to also use NSS modules to handle things like user and group metadata, etc.
 
 
 License
