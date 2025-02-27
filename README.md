@@ -80,6 +80,9 @@ The pre-built pam_redirector.so is built on Debian Wheezy
 for Intel 64-bit. Try to build it yourself and report bugs. If you
 have any trouble, ask.
 
+Testing
+-------
+
 
 PAM Configuration
 -----------------
