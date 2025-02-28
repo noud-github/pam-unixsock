@@ -1,5 +1,6 @@
 pam_unixsock
 ==============
+https://github.com/uber/pam-ussh/blob/master/pam.go
 
 Description
 -----------

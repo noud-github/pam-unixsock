@@ -9,7 +9,7 @@ import (
 )
 
 // authenticateUser authenticates a user using PAM.
-func authenticateUser(username, password string) error {
+func authenticateUser(username, password string, args []string) error {
 	transaction, err := pam.StartFunc("", username, func(s pam.Style, msg string) (string, error) {
 		switch s {
 		case pam.PromptEchoOff:
@@ -59,13 +59,15 @@ func writeToUnixSocket(socketPath string, data string) error {
 	return nil
 }
 
-func main() {
+func main() {}
+
+/*
 	// Replace with actual username and password
 	username := "testuser"
 	password := "testpassword"
 
 	// Authenticate the user
-	if err := authenticateUser(username, password); err != nil {
+	if err := authenticateUser(username, password, nil); err != nil {
 		fmt.Fprintf(os.Stderr, "Authentication error: %v\n", err)
 		os.Exit(1)
 	}
@@ -80,3 +82,4 @@ func main() {
 		os.Exit(1)
 	}
 }
+*/
