@@ -8,13 +8,14 @@ like doing web requests.
 
 usage:
 
-    auth       required    pam_unixsock.so [hidden] [timeout=2] [extra prompt:]
+    auth       required    pam_unixsock.so [hidden] [no_authtok] [timeout=2] [extra prompt:]
 
 Where the arguments are:
 
 * If `hidden` is set the input to prompt will not be echoed to the screen.
 * With `timeout` you can specify how long the module should wait for a response from the server. If
   none is given before the timeout expires this is taken as an *success*. The timeout is in seconds.
+* `no_authtok`, do not prompt for the password again.
 * If extra prompt text is given, this will be prompted for (see `hidden`) and will also be given
 * to the unix socket.
 
@@ -23,13 +24,16 @@ The Unix socket defaults to /var/run/pam_unix.sock The protocol is described bel
 Protocol
 --------
 pam_unixsock implements an extremely simple socket protocol whereby pam_unixsock passes a
-username, password and a potential second token (2FA, see the extra prompt stuff) (separated by new
+username, the PAM service a potential password and second token (2FA, see the extra prompt stuff) (separated by new
 line) to the Unix socket and then your server simply replies with a 0 or 1:
 
-    [pam_unixsock]   john_smith\n
-    [pam_unixsock]   secret\n
-    [pam_unixsock]   prompt\n
+    [pam_unixsock]   PAM_USER: john_smith\n
+    [pam_unixsock]   PAM_SERVICE: prompt\n
+    [pam_unixsock]   PAM_AUTHTOK: secret\n
+    [pam_unixsock]   PAM_UNIXSOCK: prompt\n
     [your server]    1\n
+
+Each `PAM_...` string is send literal. `PAM_UNIXSOCK` is the extra bit of data this PAM module adds.
 
 If your server answers within `timeout` (2s by default) with a `1` you are authenticated.
 
@@ -52,13 +56,25 @@ Source Install
 Testing
 -------
 
-% more /etc/pam.d/unixsock
+Create a fake pam server called `unixsock`:
+
+~~~
+% cat /etc/pam.d/unixsock
 #%PAM-1.0
 auth       required     pam_unixsock.so
+~~~
 
+Open a reader on the socket:
+
+~~~
 # nc -lU /var/run/pam_unix.sock
+~~~
 
+Use pamtester to authenticate yourself; you can just use a fake password here.
+
+~~~
 % sudo pamtester unixsock $USER authenticate
+~~~
 
 License
 -------

@@ -67,12 +67,17 @@ char *concat_with_space(const char *a, const char *b) {
 
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
     char *prompt = NULL;
+    bool authtoken = true;
     bool hidden = false;
     int timeout = DEFAULT_TIMEOUT;
 
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "hidden") == 0) {
           hidden = true;
+          continue;
+        }
+        if (strcmp(argv[i], "no_authtok") == 0) {
+          authtoken = false;
           continue;
         }
         if (strncmp(argv[i], "timeout=", 8) == 0) {
@@ -87,9 +92,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         prompt = concat_with_space(prompt, ""); // adds trailing space
     }
 
-    const char *username, *password, *prompt_response = "";
+    const char *username, *password, *service, *prompt_response = "";
     pam_get_user(pamh, &username, NULL);
-    pam_get_authtok(pamh, PAM_AUTHTOK, &password, NULL);
+    if (authtoken) {
+        pam_get_authtok(pamh, PAM_AUTHTOK, &password, NULL);
+    }
+    pam_get_item(pamh, PAM_SERVICE, (const void **)&service);
 
     if (prompt) {
         pam_prompt(pamh, hidden ? PAM_PROMPT_ECHO_OFF : PAM_PROMPT_ECHO_ON, (char **)&prompt_response, "%s", prompt);
