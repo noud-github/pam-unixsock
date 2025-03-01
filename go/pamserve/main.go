@@ -15,17 +15,6 @@ import (
 
 const socketPath = "/var/run/pam_unix.sock"
 
-type PamUnixSock struct {
-	username string
-	service  string
-	password string
-	prompt   string
-}
-
-func (p PamUnixSock) String() string {
-	return fmt.Sprintf("user %q - service %s - password %q - prompt %q", p.username, p.service, p.password, p.prompt)
-}
-
 func main() {
 	if err := os.RemoveAll(socketPath); err != nil {
 		log.Fatalf("Failed to remove existing socket file: %v", err)
@@ -102,4 +91,15 @@ func processData(conn net.Conn, data []byte) {
 	if err != nil {
 		log.Printf("Failed to write to connection: %v", err)
 	}
+}
+
+type PamUnixSock struct {
+	username string
+	service  string
+	password string
+	prompt   string
+}
+
+func (p PamUnixSock) String() string {
+	return fmt.Sprintf("user %q - service %s - password %q - prompt %q", p.username, p.service, p.password, p.prompt)
 }
