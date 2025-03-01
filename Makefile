@@ -1,7 +1,7 @@
 all: pam_unixsock.so
 
 pam_unixsock.so: pam_unixsock.o
-	# ldd says statically linked???
+	@# ldd says statically linked???
 	ld -x --shared -o pam_unixsock.so pam_unixsock.o
 
 pam_unixsock.o: pam_unixsock.c

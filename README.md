@@ -1,23 +1,25 @@
 pam_unixsock
 ==============
 
-Usage:
-
-    auth       required    pam_unixsock.so [prompt="..." [hidden]] [timeout=2s /var/run/unix.sock
-
-Where the arguments are:
-
-* The Unix socket to write to, something should be listening, otherwise it will grant
-    access after a 2s timeout
-* The `prompt` argument is optional, if set unixsock will print "prompt" and also write the input to the Unix
-    socket. If `hidden` is set the input to prompt will not be echoed to the screen.
-* With `timeout` you can specify how long the module should wait for a response from the server. If
-  none is given before the timeout expires this is taken as an *success*.
-
 This code is a pluggable authentication module (PAM) that redirects the credentials to a
 local Unix socket. The server listening on that socket is then free to do many more complex things,
 because it's free from the calling process' address space. In our case we need to do complex things
 like doing web requests.
+
+usage:
+
+    auth       required    pam_unixsock.so [hidden] [timeout=2] [Extra prompt text:]
+
+Where the arguments are:
+
+* If `hidden` is set the input to prompt will not be echoed to the screen.
+* With `timeout` you can specify how long the module should wait for a response from the server. If
+  none is given before the timeout expires this is taken as an *success*. The timeout is in seconds.
+* If extra prompt text is given, this will be prompted for (see `hidden`) and will also be given
+* to the unix socket.
+
+The Uni socket defaults to /var/run/pam_unix.sock
+
 
 The protocol is described below and is fairly simplistic.
 
@@ -46,10 +48,6 @@ Source Install
     make clean
     make all
 
-    # make debug will instead build pam_redirector to echo all
-    # usernames and passwords to syslog -- useful when
-    # troubleshooting, but insecure
-
     sudo make install
 
     # which is the same as:
@@ -58,36 +56,13 @@ Source Install
 Testing
 -------
 
-TODO
+% more /etc/pam.d/unixsock
+#%PAM-1.0
+auth       required     pam_unixsock.so
 
-PAM Configuration
------------------
+# nc -lU /var/run/pam_unix.sock
 
-Remember, you need to configure PAM to actually use this pam module as well for each service you
-want it to authenticate.
-
-Here's an example PAM configuration file to put in /etc/pam.d:
-
-    #%PAM-1.0
-
-    auth optional pam_unix.so
-    account optional pam_unix.so
-
-    # @include common-auth
-    # @include common-account
-
-    @include common-session
-
-    auth required     pam_unixsock.so /var/run/pam_redirector/socket
-    account required  pam_unixsock.so /var/run/pam_redirector/socket
-
-Security Caveats
-----------------
-
-1)   Obviously, no authentication occurs between the server and PAM,
-     so ensure you restrict access to the socket to root only.
-     The example server creates a socket as /tmp/sock, and this
-     is VERY INSECURE, for demonstration only.
+% sudo pamtester unixsock $USER authenticate
 
 License
 -------
