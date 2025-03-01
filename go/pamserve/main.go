@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +13,17 @@ import (
 )
 
 const socketPath = "/var/run/pam_unix.sock"
+
+type PamUnixSock struct {
+	username string
+	service  string
+	password string
+	prompt   string
+}
+
+func (p PamUnixSock) String() string {
+	return fmt.Sprintf("user %q - service %s - password %q - prompt %q", p.username, p.service, p.password, p.prompt)
+}
 
 func main() {
 	if err := os.RemoveAll(socketPath); err != nil {
@@ -44,13 +57,12 @@ func main() {
 			continue
 		}
 
-		// Handle each connection in a new goroutine
-		go handleConnection(conn)
+		go handle(conn)
 	}
 }
 
-// handleConnection reads data from the connection and processes it
-func handleConnection(conn net.Conn) {
+// handle reads data from the connection and processes it.
+func handle(conn net.Conn) {
 	// we do a single read for the data and than "handle" it
 	buf := make([]byte, 1024)
 	n, err := conn.Read(buf)
@@ -68,6 +80,13 @@ func handleConnection(conn net.Conn) {
 func processData(conn net.Conn, data []byte) {
 	defer conn.Close()
 	fmt.Printf("Processing data: %s\n", string(data))
+
+	scanner := bufio.NewScanner(bytes.NewReader(data))
+	i := 0
+	for scanner.Scan() {
+		fmt.Println(i, scanner.Text())
+		i++
+	}
 
 	ok := []byte("0\n")
 
