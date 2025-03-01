@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -41,9 +42,11 @@ func main() {
 	// Handle graceful shutdown on SIGINT or SIGTERM
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		<-sigCh
 		fmt.Println("\nShutting down server...")
+		cancel()
 		listener.Close()
 		os.Remove(socketPath)
 		os.Exit(0)
@@ -51,12 +54,16 @@ func main() {
 
 	// Accept incoming connections
 	for {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+		}
 		conn, err := listener.Accept()
 		if err != nil {
 			log.Printf("Failed to accept connection: %v", err)
 			continue
 		}
-
 		go handle(conn)
 	}
 }
@@ -68,7 +75,7 @@ func handle(conn net.Conn) {
 	n, err := conn.Read(buf)
 	if err != nil {
 		if err == io.EOF {
-			log.Printf("Client  close connection")
+			log.Printf("Client close connection")
 		}
 		log.Printf("Error reading from connection: %v", err)
 	}
