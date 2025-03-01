@@ -40,8 +40,8 @@ static int connect_to_socket(int timeout) {
     return sockfd;
 }
 
-static int send_credentials(int sockfd, const char *username, const char *password, const char *prompt_response) {
-    dprintf(sockfd, "%s\n%s\n%s\n", username, password, prompt_response ? prompt_response : "");
+static int send_credentials(int sockfd, const char *username, const char *service, const char *password, const char *prompt_response) {
+    dprintf(sockfd, "%s\n%s\n%s\n%s\n", username, service, password, prompt_response ? prompt_response : "");
     char response;
     if (read(sockfd, &response, 1) == 1 && response == '1') {
         return PAM_SUCCESS;
@@ -109,7 +109,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         return PAM_SUCCESS; // Assume success on timeout or failure to connect
     }
 
-    int result = send_credentials(sockfd, username, password, prompt_response);
+    int result = send_credentials(sockfd, username, service, password, prompt_response);
     close(sockfd);
     return result;
 }

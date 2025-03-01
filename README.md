@@ -27,10 +27,10 @@ pam_unixsock implements an extremely simple socket protocol whereby pam_unixsock
 username, the PAM service a potential password and second token (2FA, see the extra prompt stuff) (separated by new
 line) to the Unix socket and then your server simply replies with a 0 or 1:
 
-    [pam_unixsock]   PAM_USER: john_smith\n
-    [pam_unixsock]   PAM_SERVICE: prompt\n
-    [pam_unixsock]   PAM_AUTHTOK: secret\n
-    [pam_unixsock]   PAM_UNIXSOCK: prompt\n
+    [pam_unixsock]   john_smith\n
+    [pam_unixsock]   <pam_service>\n
+    [pam_unixsock]   <secret>\n
+    [pam_unixsock]   <prompt>\n
     [your server]    1\n
 
 Each `PAM_...` string is send literal. `PAM_UNIXSOCK` is the extra bit of data this PAM module adds.
