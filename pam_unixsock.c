@@ -71,7 +71,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     int timeout = DEFAULT_TIMEOUT;
 
     for (int i = 0; i < argc; i++) {
-            printf("arg %s\n", argv[i]);
         if (strcmp(argv[i], "hidden") == 0) {
           hidden = true;
           continue;
