@@ -25,10 +25,10 @@ func main() {
 		log.Fatalf("Failed to listen on Unix socket: %v", err)
 	}
 	defer listener.Close()
+	os.Chmod(socketPath, 0o600) // slight race between getting the socket and setting perms...
 
 	fmt.Printf("Server is listening on Unix socket: %s\n", socketPath)
 
-	// Handle graceful shutdown on SIGINT or SIGTERM
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	ctx, cancel := context.WithCancel(context.Background())
