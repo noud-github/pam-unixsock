@@ -14,6 +14,19 @@
 #define DEFAULT_TIMEOUT 2
 #define SOCKET_PATH "/var/run/pam_unix.sock"
 
+bool debug = false;
+
+#ifdef DBG
+#undef DBG
+#endif
+#define DBG(x...) if (debug) { D(x); }
+
+#define D(x...) do {							        \
+  fprintf (stdout, "debug: %s:%d (%s): ", __FILE__, __LINE__, __FUNCTION__);	\
+  fprintf (stdout, x);								\
+  fprintf (stdout, "\n");							\
+} while (0)
+
 static int connect_to_socket(int timeout)
 {
 	int sockfd;
@@ -73,6 +86,7 @@ char *concat_with_space(const char *a, const char *b)
 
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
+	int retval;
 	char *prompt = NULL;
 	bool authtoken = true;
 	bool hidden = false;
@@ -85,6 +99,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		}
 		if (strcmp(argv[i], "no_authtok") == 0) {
 			authtoken = false;
+			continue;
+		}
+		if (strcmp(argv[i], "debug") == 0) {
+			debug = true;
 			continue;
 		}
 		if (strncmp(argv[i], "timeout=", 8) == 0) {
@@ -107,7 +125,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	pam_get_item(pamh, PAM_SERVICE, (const void **)&service);
 
 	if (prompt) {
-		int retval;
 		struct pam_message msg[1];
 		const struct pam_message *pmsg[1];
 		struct pam_response *resp = NULL;
@@ -116,11 +133,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		retval = pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		if (retval != PAM_SUCCESS) {
-			printf("get conv returned error: %s", pam_strerror(pamh, retval));
+			DBG("get conv returned error: %s", pam_strerror(pamh, retval));
 			return retval;
 		}
 		if (!conv || !conv->conv) {
-			printf("conv() function invalid");
+			DBG("conv() function invalid");
 			return PAM_CONV_ERR;
 		}
 
@@ -129,10 +146,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		msg[0].msg_style = hidden ? PAM_PROMPT_ECHO_OFF : PAM_PROMPT_ECHO_ON;
 		retval = conv->conv(1, pmsg, &resp, conv->appdata_ptr);
 		if (retval != PAM_SUCCESS) {
-			printf("conv->conv returned error: %s", pam_strerror(pamh, retval));
+			DBG("conv->conv returned error: %s", pam_strerror(pamh, retval));
 			return retval;
 		}
-		// Token is now in resp->resp;
 		prompt_response = resp->resp;
 //              pam_prompt(pamh, (char **)&prompt_response, "%s", prompt); // for other pam modules?? option!?
 	}
@@ -143,10 +159,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		return PAM_SUCCESS;	// Assume success on timeout or failure to connect
 	}
 
-	int result = send_credentials(sockfd, username, service, password,
-				      prompt_response);
+	retval = send_credentials(sockfd, username, service, password, prompt_response);
 	close(sockfd);
-	return result;
+	return retval;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)

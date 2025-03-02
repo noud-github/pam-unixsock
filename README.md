@@ -14,6 +14,7 @@ Where the arguments are:
 * If `hidden` is set the input to prompt will not be echoed to the screen.
 * With `timeout` you can specify how long the module should wait for a response from the server. If
   none is given before the timeout expires this is taken as an *success*. The timeout is in seconds.
+* `debug` enable debug logging to stdout.
 * `no_authtok`, do not prompt for the password again.
 * If extra prompt text is given, this will be prompted using that text for (see `hidden`) and will
   also be given to the unix socket.
