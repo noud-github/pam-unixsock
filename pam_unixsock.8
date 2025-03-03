@@ -55,15 +55,40 @@ Unix socket and then your server simply replies with a 0 or 1:
 .PP
 If your server answers within \fB\fCtimeout\fR (2 by default) with a \fB\fC1\fR you are authenticated.
 
-.SH "EXAMPLE"
+.SH "CONFIGURATION"
+.PP
+With Ubuntu (24.04), in \fB\fC/etc/pam.d/sshd\fR:
+
 .PP
 .RS
 
 .nf
-auth       required     pam\_unixsock.so no\_authtok Enter 2FA:
+# Standard Un*x authentication.
+@include common\-auth
+
+# add this line
+auth required pam\_unixsock.so debug Enter 2FA token
 
 .fi
 .RE
+
+.SH "SSH"
+.PP
+In the \fB\fCsshd\fR configuration be sure to add:
+
+.PP
+.RS
+
+.nf
+KbdInteractiveAuthentication yes
+UsePAM yes
+
+.fi
+.RE
+
+.PP
+Note that with public key authentication this is bypassed, and you log in without being asked for a
+second token.
 
 .SH "AUTHOR"
 .SH ""
