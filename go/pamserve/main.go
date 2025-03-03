@@ -68,25 +68,34 @@ func handle(conn net.Conn) {
 		}
 		log.Printf("Error reading from connection: %v", err)
 	}
-
-	processData(conn, buf[:n])
+	process(conn, buf[:n])
 }
 
-// processData handles the received data
-func processData(conn net.Conn, data []byte) {
+// process handles the received data.
+func process(conn net.Conn, data []byte) {
 	defer conn.Close()
-	fmt.Printf("Processing data: %s\n", string(data))
 
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	i := 0
+	pam := PamUnixSock{}
 	for scanner.Scan() {
-		fmt.Println(i, scanner.Text())
+		switch i {
+		case 0:
+			pam.username = scanner.Text()
+		case 1:
+			pam.service = scanner.Text()
+		case 2:
+			pam.password = scanner.Text()
+		case 3:
+			pam.prompt = scanner.Text()
+		}
 		i++
 	}
 
+	log.Printf("Seen: %s\n", pam)
+
 	ok := []byte("1\n")
 
-	// Example: Echo the data back to the client
 	_, err := conn.Write(ok)
 	if err != nil {
 		log.Printf("Failed to write to connection: %v", err)
@@ -101,5 +110,5 @@ type PamUnixSock struct {
 }
 
 func (p PamUnixSock) String() string {
-	return fmt.Sprintf("user %q - service %s - password %q - prompt %q", p.username, p.service, p.password, p.prompt)
+	return fmt.Sprintf("user %q - service %s - password %q - prompt %q", p.username, p.service, "xxx", p.prompt)
 }

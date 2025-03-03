@@ -1,0 +1,9 @@
+Source: libpam-unixsock
+Section: libs
+Maintainer: Miek Gieben <miek@miek.nl>
+Build-Depends: debhelper (>= 9), libpam0g
+
+Package: libpam-unixsock
+Priority: optional
+Architecture: amd64
+Description: PAM module to send credentials to a unix socket
