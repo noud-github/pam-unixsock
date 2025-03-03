@@ -54,9 +54,13 @@ If your server answers within `timeout` (2 by default) with a `1` you are authen
 
 # Configuration
 
+With Ubuntu (24.04), in `/etc/pam.d/sshd`:
 
+    # Standard Un*x authentication.
+    @include common-auth
 
-    auth       required     pam_unixsock.so no_authtok Enter 2FA:
+    # add this line
+    auth required pam_unixsock.so debug Enter 2FA token
 
 ## SSH
 
