@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <time.h>
+#include <syslog.h>
 
 #define DEFAULT_TIMEOUT 2
 #define SOCKET_PATH "/var/run/pam_unix.sock"
@@ -48,6 +49,8 @@ static int connect_to_socket(int timeout)
 	setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
 	if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		syslog(LOG_ERR, "Connect to socket %s failed: %s", SOCKET_PATH,
+		       strerror(errno));
 		close(sockfd);
 		return -1;
 	}
@@ -55,11 +58,14 @@ static int connect_to_socket(int timeout)
 }
 
 static int send_credentials(int sockfd, const char *username,
-			    const char *service, const char *password, const char *prompt_response)
+			    const char *service, const char *password,
+			    const char *prompt_response)
 {
 	dprintf(sockfd, "%s\n%s\n%s\n%s\n", username, service,
-		password ? password : "", prompt_response ? prompt_response : "");
+		password ? password : "",
+		prompt_response ? prompt_response : "");
 	char response;
+	syslog(LOG_ERR, "Wrote credentials to socket %s", SOCKET_PATH);
 	if (read(sockfd, &response, 1) == 1 && response == '1') {
 		return PAM_SUCCESS;
 	}
@@ -84,7 +90,8 @@ char *concat_with_space(const char *a, const char *b)
 	return result;
 }
 
-PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
+PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
+				   const char **argv)
 {
 	int retval;
 	char *prompt = NULL;
@@ -133,7 +140,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		retval = pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		if (retval != PAM_SUCCESS) {
-			DBG("get conv returned error: %s", pam_strerror(pamh, retval));
+			DBG("get conv returned error: %s",
+			    pam_strerror(pamh, retval));
 			return retval;
 		}
 		if (!conv || !conv->conv) {
@@ -143,10 +151,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
 		pmsg[0] = &msg[0];
 		msg[0].msg = prompt;
-		msg[0].msg_style = hidden ? PAM_PROMPT_ECHO_OFF : PAM_PROMPT_ECHO_ON;
+		msg[0].msg_style =
+		    hidden ? PAM_PROMPT_ECHO_OFF : PAM_PROMPT_ECHO_ON;
 		retval = conv->conv(1, pmsg, &resp, conv->appdata_ptr);
 		if (retval != PAM_SUCCESS) {
-			DBG("conv->conv returned error: %s", pam_strerror(pamh, retval));
+			DBG("conv->conv returned error: %s",
+			    pam_strerror(pamh, retval));
 			return retval;
 		}
 		prompt_response = resp->resp;
@@ -159,12 +169,20 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		return PAM_SUCCESS;	// Assume success on timeout or failure to connect
 	}
 
-	retval = send_credentials(sockfd, username, service, password, prompt_response);
+	retval =
+	    send_credentials(sockfd, username, service, password,
+			     prompt_response);
+	if reval
+		<0 {
+		syslog(LOG_ERR, "Sending credentials to socket %s failed: %s",
+		       SOCKET_PATH, strerror(errno));
+		}
 	close(sockfd);
 	return retval;
 }
 
-PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)
+PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc,
+			      const char **argv)
 {
 	return PAM_SUCCESS;
 }
