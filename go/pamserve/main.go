@@ -74,14 +74,25 @@ func handle(conn net.Conn) {
 // process handles the received data.
 func process(conn net.Conn, data []byte) {
 	defer conn.Close()
-	fmt.Printf("Processing data: %s\n", string(data))
 
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	i := 0
+	pam := PamUnixSock{}
 	for scanner.Scan() {
-		fmt.Println(i, scanner.Text())
+		switch i {
+		case 0:
+			pam.username = scanner.Text()
+		case 1:
+			pam.service = scanner.Text()
+		case 2:
+			pam.password = scanner.Text()
+		case 3:
+			pam.prompt = scanner.Text()
+		}
 		i++
 	}
+
+	log.Printf("Seen: %s\n", pam)
 
 	ok := []byte("1\n")
 
