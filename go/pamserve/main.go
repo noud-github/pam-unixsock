@@ -68,12 +68,11 @@ func handle(conn net.Conn) {
 		}
 		log.Printf("Error reading from connection: %v", err)
 	}
-
-	processData(conn, buf[:n])
+	process(conn, buf[:n])
 }
 
-// processData handles the received data
-func processData(conn net.Conn, data []byte) {
+// process handles the received data.
+func process(conn net.Conn, data []byte) {
 	defer conn.Close()
 	fmt.Printf("Processing data: %s\n", string(data))
 
@@ -86,7 +85,6 @@ func processData(conn net.Conn, data []byte) {
 
 	ok := []byte("1\n")
 
-	// Example: Echo the data back to the client
 	_, err := conn.Write(ok)
 	if err != nil {
 		log.Printf("Failed to write to connection: %v", err)
@@ -101,5 +99,5 @@ type PamUnixSock struct {
 }
 
 func (p PamUnixSock) String() string {
-	return fmt.Sprintf("user %q - service %s - password %q - prompt %q", p.username, p.service, p.password, p.prompt)
+	return fmt.Sprintf("user %q - service %s - password %q - prompt %q", p.username, p.service, "xxx", p.prompt)
 }
