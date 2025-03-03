@@ -84,7 +84,7 @@ func processData(conn net.Conn, data []byte) {
 		i++
 	}
 
-	ok := []byte("0\n")
+	ok := []byte("1\n")
 
 	// Example: Echo the data back to the client
 	_, err := conn.Write(ok)
