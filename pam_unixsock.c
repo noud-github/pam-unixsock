@@ -172,11 +172,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 	retval =
 	    send_credentials(sockfd, username, service, password,
 			     prompt_response);
-	if reval
-		<0 {
+	if (retval < 0) {
 		syslog(LOG_ERR, "Sending credentials to socket %s failed: %s",
 		       SOCKET_PATH, strerror(errno));
-		}
+	}
 	close(sockfd);
 	return retval;
 }
