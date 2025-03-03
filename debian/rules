@@ -6,20 +6,20 @@ LIB             := pam_unixsock.so
 DOWNLOAD        := $(shell basename $(SOURCE) )
 
 %:
-        dh $@
+	dh $@
 
 override_dh_auto_configure:
-        dh_clean
-        if [ ! -f $(DOWNLOAD) ]; then curl -L $(SOURCE) > $(DOWNLOAD); fi
-        rm -rf pkg; mkdir pkg
-        tar xf $(DOWNLOAD) -C pkg --strip-components 1
-        for i in $(LIB); do ( cd pkg/; make ); cp pkg/$$i .; done
+	dh_clean
+	if [ ! -f $(DOWNLOAD) ]; then curl -L $(SOURCE) > $(DOWNLOAD); fi
+	rm -rf pkg; mkdir pkg
+	tar xf $(DOWNLOAD) -C pkg --strip-components 1
+	for i in $(LIB); do ( cd pkg/; make ); cp pkg/$$i .; done
 
 override_dh_strip:
 
 override_dh_auto_clean:
 
 override_dh_auto_install:
-	mkdir -p debian/usr/lib/x86_64-linux-gnu/security
-        for i in $(LIB); do cp `basename $$i` debian/usr/lib/x86_64-linux-gnu/security; done
-        cp pkg/man_unixsock.8 .
+	mkdir -p debian/libpam-unixsock/usr/lib/x86_64-linux-gnu/security
+	for i in $(LIB); do cp `basename $$i` debian/libpam-unixsock/usr/lib/x86_64-linux-gnu/security; done
+	cp pkg/pam_unixsock.8 .
