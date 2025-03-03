@@ -55,9 +55,11 @@ static int send_credentials(int sockfd, const char *username,
 		password ? password : "",
 		prompt_response ? prompt_response : "");
 	char response;
+        if (debug) {
 	syslog(LOG_INFO,
 	       "pam_unixsock(%s:auth): wrote credentials to socket %s for %s",
 	       service, SOCKET_PATH, username);
+        }
 	if (read(sockfd, &response, 1) == 1 && response == '1') {
 		if (debug) {
 			syslog(LOG_INFO,
