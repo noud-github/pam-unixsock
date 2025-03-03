@@ -180,6 +180,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 		       service, SOCKET_PATH, strerror(errno));
 	}
 	close(sockfd);
+        pam_info(pamh, "You are authenticated %s\n", username);
 	return retval;
 }
 
