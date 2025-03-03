@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <time.h>
+#include <syslog.h>
 
 #define DEFAULT_TIMEOUT 2
 #define SOCKET_PATH "/var/run/pam_unix.sock"
@@ -48,6 +49,7 @@ static int connect_to_socket(int timeout)
 	setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
 	if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+                syslog(LOG_ERR, "Connect to socket %s failed: %s", SOCKET_PATH, strerror(errno));
 		close(sockfd);
 		return -1;
 	}
