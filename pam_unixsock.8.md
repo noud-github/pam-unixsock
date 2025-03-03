@@ -41,8 +41,8 @@ given, the text is used to prompt the user for another authentication token.
 # Protocol
 
 **pam_unixsock** implements an extremely simple socket protocol whereby it passes an username, the
-PAM service, a potential password and second token (2FA, see the extra prompt stuff) (separated by
-new lines) to the Unix socket and then your server simply replies with a 0 or 1:
+PAM service, a potential password and second token (i.e. **PROMPT**) (separated by new lines) to the
+Unix socket and then your server simply replies with a 0 or 1:
 
     [pam_unixsock]   john_smith\n
     [pam_unixsock]   <pam_service>\n
@@ -52,8 +52,22 @@ new lines) to the Unix socket and then your server simply replies with a 0 or 1:
 
 If your server answers within `timeout` (2 by default) with a `1` you are authenticated.
 
-# Example
+# Configuration
+
+
 
     auth       required     pam_unixsock.so no_authtok Enter 2FA:
+
+## SSH
+
+In the `sshd` configuration be sure to add:
+
+~~~
+KbdInteractiveAuthentication yes
+UsePAM yes
+~~~
+
+Note that with public key authentication this is bypassed, and you log in without being asked for a
+second token.
 
 # Author
