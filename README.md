@@ -1,5 +1,11 @@
+# pam-unixsock
+
+pam_unixsock is PAM module to send credentials to a unix socket. See pam_unixsock.8.md for more
+information.
+
 Requirements
 ------------
+
 * The LibPAM development headers (libpam-dev or libpam0g-dev)
 * A PAM-based system (currently only tested on Linux)
 
@@ -9,15 +15,18 @@ Source Install
     make clean
     make all
 
-    sudo make install
+And then copy it to:
 
-    # which is the same as:
-    # cp pam_unixsock.so /lib/security/
+    cp pam_unixsock.so /lib/security
+
+Or for Ubuntu
+
+    cp pam_unixsock.so /usr/lib/x86_64-linux-gnu/security
 
 Testing
 -------
 
-Create a fake pam server called `unixsock`:
+Create a fake pam service called `unixsock`:
 
 ~~~
 % cat /etc/pam.d/unixsock
