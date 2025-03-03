@@ -17,17 +17,6 @@
 
 bool debug = false;
 
-#ifdef DBG
-#undef DBG
-#endif
-#define DBG(x...) if (debug) { D(x); }
-
-#define D(x...) do {							        \
-  fprintf (stdout, "debug: %s:%d (%s): ", __FILE__, __LINE__, __FUNCTION__);	\
-  fprintf (stdout, x);								\
-  fprintf (stdout, "\n");							\
-} while (0)
-
 static int connect_to_socket(int timeout)
 {
 	int sockfd;
@@ -65,8 +54,11 @@ static int send_credentials(int sockfd, const char *username,
 		password ? password : "",
 		prompt_response ? prompt_response : "");
 	char response;
-	syslog(LOG_ERR, "Wrote credentials to socket %s", SOCKET_PATH);
+	syslog(LOG_INFO, "Wrote credentials to socket %s", SOCKET_PATH);
 	if (read(sockfd, &response, 1) == 1 && response == '1') {
+		if (debug) {
+			syslog(LOG_INFO, "Positive response from server seen");
+		}
 		return PAM_SUCCESS;
 	}
 	return PAM_AUTH_ERR;
@@ -140,12 +132,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 		pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		retval = pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		if (retval != PAM_SUCCESS) {
-			DBG("get conv returned error: %s",
-			    pam_strerror(pamh, retval));
+			syslog(LOG_ERR, "get conv returned error: %s", pam_strerror(pamh, retval));
 			return retval;
 		}
 		if (!conv || !conv->conv) {
-			DBG("conv() function invalid");
+			syslog(LOG_ERR, "conv() function invalid");
 			return PAM_CONV_ERR;
 		}
 
@@ -155,8 +146,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 		    hidden ? PAM_PROMPT_ECHO_OFF : PAM_PROMPT_ECHO_ON;
 		retval = conv->conv(1, pmsg, &resp, conv->appdata_ptr);
 		if (retval != PAM_SUCCESS) {
-			DBG("conv->conv returned error: %s",
-			    pam_strerror(pamh, retval));
+			syslog(LOG_ERR, "conv->conv returned error: %s", pam_strerror(pamh, retval));
 			return retval;
 		}
 		prompt_response = resp->resp;
