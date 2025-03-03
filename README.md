@@ -3,6 +3,9 @@
 pam_unixsock is PAM module to send credentials to a unix socket. See pam_unixsock.8.md for more
 information.
 
+In `go/pamserve` you'll find a skeleton Go server that listen on the unix socket and echos back an
+OK.
+
 Requirements
 ------------
 
