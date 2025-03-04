@@ -162,13 +162,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 			return retval;
 		}
 		prompt_response = resp->resp;
-//              pam_prompt(pamh, (char **)&prompt_response, "%s", prompt); // for other pam modules?? option!?
 	}
 	free(prompt);
 
 	int sockfd = connect_to_socket(timeout);
 	if (sockfd < 0) {
-		return PAM_SUCCESS;	// Assume success on timeout or failure to connect
+		return PAM_SUCCESS;	// Assume success on timeout or failure to connect?
 	}
 
 	retval =
