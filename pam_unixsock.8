@@ -7,7 +7,7 @@ pam_unixsock \- PAM module to send credentials to a Unix socket
 
 .SH "SYNOPSIS"
 .PP
-\fBpam_unixsock.so\fP [\fBhidden\fP] [\fBtimeout\fP] [\fBdebug\fP] [\fIPROMPT\fP]
+\fBpam_unixsock.so\fP [\fBhidden\fP] [\fBfailopen\fP] [\fBtimeout\fP] [\fBdebug\fP] [\fIPROMPT\fP]
 
 .SH "DESCRIPTION"
 .PP
@@ -29,6 +29,9 @@ set the timeout in seconds for how long to wait for a response from the server, 
 .TP
 \fBhidden\fP
 when prompting for another authentication token, hide the input.
+.TP
+\fBfailopen\fP
+when set ignore failures to \fIconnect\fP to the Unix socket and return PAM_SUCCESS.
 
 
 .SH "PROTOCOL"
