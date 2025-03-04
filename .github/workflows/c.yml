@@ -8,7 +8,7 @@ jobs:
     steps:
 
     - name: Set up environment
-      run: sudo apt install -y libpam0g make
+      run: sudo apt install -y libpam0g libpam0g-dev make
 
     - name: Check out code
       uses: actions/checkout@v3
