@@ -12,7 +12,7 @@ pam_unixsock - PAM module to send credentials to a Unix socket
 
 # Synopsis
 
-**pam_unixsock.so** [**hidden**] [**timeout**] [**debug**] [*PROMPT*]
+**pam_unixsock.so** [**hidden**] [**failopen**] [**timeout**] [**debug**] [*PROMPT*]
 
 # Description
 
@@ -34,6 +34,9 @@ implements the *auth* module.
 
 **hidden**
 :  when prompting for another authentication token, hide the input.
+
+**failopen**
+:  when set ignore failures to *connect* to the Unix socket and return PAM_SUCCESS.
 
 # Protocol
 
