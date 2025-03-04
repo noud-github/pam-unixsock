@@ -46,10 +46,9 @@ static int connect_to_socket(int timeout)
 }
 
 static int send_credentials(int sockfd, const char *username,
-			    const char *service, const char *password, const char *prompt_response)
+			    const char *service, const char *prompt_response)
 {
-	dprintf(sockfd, "%s\n%s\n%s\n%s\n", username, service,
-		password ? password : "", prompt_response ? prompt_response : "");
+	dprintf(sockfd, "%s\n%s\n%s\n", username, service, prompt_response ? prompt_response : "");
 	char response;
 	if (debug) {
 		syslog(LOG_INFO,
@@ -111,7 +110,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		prompt = concat_with_space(prompt, "");	// adds trailing space
 	}
 
-	const char *username, *password, *service, *prompt_response = "";
+	const char *username, *service, *prompt_response = "";
 	pam_get_user(pamh, &username, NULL);
 	pam_get_item(pamh, PAM_SERVICE, (const void **)&service);
 
@@ -150,7 +149,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		return PAM_SUCCESS;	// Assume success on timeout or failure to connect?
 	}
 
-	retval = send_credentials(sockfd, username, service, password, prompt_response);
+	retval = send_credentials(sockfd, username, service, prompt_response);
 	if (retval < 0) {
 		syslog(LOG_ERR,
 		       "pam_unixsock(%s:auth): sending credentials to socket %s failed: %s",

@@ -34,16 +34,14 @@ given, the text is used to prompt the user for another authentication token.
 **hidden**
 :  when prompting for another authentication token, hide the input
 
-
 # Protocol
 
 **pam_unixsock** implements an extremely simple socket protocol whereby it passes an username, the
-PAM service, a potential password and second token (i.e. **PROMPT**) (separated by new lines) to the
-Unix socket and then your server simply replies with a 0 or 1:
+PAM service, and the second token (i.e. **PROMPT**) (separated by new lines) to the Unix socket and
+then your server simply replies with a 0 or 1:
 
     [pam_unixsock]   john_smith\n
     [pam_unixsock]   <pam_service>\n
-    [pam_unixsock]   <pam_authtok>\n
     [pam_unixsock]   <prompt>\n
     [your server]    1\n
 
