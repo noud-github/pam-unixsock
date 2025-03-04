@@ -12,7 +12,7 @@ pam_unixsock - PAM module to send credentials to a unix socket
 
 # Synopsis
 
-**pam_unixsock.so** [**hidden**] [**no_authtok**] [**timeout**] [**debug**] [*PROMPT*]
+**pam_unixsock.so** [**hidden**] [**timeout**] [**debug**] [*PROMPT*]
 
 # Description
 
@@ -26,9 +26,6 @@ given, the text is used to prompt the user for another authentication token.
 
 **debug**
 :  print debug information
-
-**no_authtok**
-:  do not ask for a password (yet again)
 
 **timeout**
 :  set the timeout in seconds for how long to wait for a response from the server, the default is

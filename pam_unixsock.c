@@ -87,17 +87,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 {
 	int retval;
 	char *prompt = NULL;
-	bool authtoken = true;
 	bool hidden = false;
 	int timeout = DEFAULT_TIMEOUT;
 
 	for (int i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "hidden") == 0) {
 			hidden = true;
-			continue;
-		}
-		if (strcmp(argv[i], "no_authtok") == 0) {
-			authtoken = false;
 			continue;
 		}
 		if (strcmp(argv[i], "debug") == 0) {
@@ -118,9 +113,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
 	const char *username, *password, *service, *prompt_response = "";
 	pam_get_user(pamh, &username, NULL);
-	if (authtoken) {
-		pam_get_authtok(pamh, PAM_AUTHTOK, &password, NULL);
-	}
 	pam_get_item(pamh, PAM_SERVICE, (const void **)&service);
 
 	if (prompt) {
