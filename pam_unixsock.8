@@ -22,9 +22,6 @@ given, the text is used to prompt the user for another authentication token.
 \fBdebug\fP
 print debug information
 .TP
-\fBno_authtok\fP
-do not ask for a password (yet again)
-.TP
 \fBtimeout\fP
 set the timeout in seconds for how long to wait for a response from the server, the default is
 \fB\fCtimeout=2\fR
@@ -36,7 +33,7 @@ when prompting for another authentication token, hide the input
 .SH "PROTOCOL"
 .PP
 \fBpam_unixsock\fP implements an extremely simple socket protocol whereby it passes an username, the
-PAM service, a potential password and second token (i.e. \fBPROMPT\fP) (separated by new lines) to the
+PAM service, a potential password or second token (i.e. \fBPROMPT\fP) (separated by new lines) to the
 Unix socket and then your server simply replies with a 0 or 1:
 
 .PP
@@ -45,7 +42,6 @@ Unix socket and then your server simply replies with a 0 or 1:
 .nf
 [pam\_unixsock]   john\_smith\\n
 [pam\_unixsock]   <pam\_service>\\n
-[pam\_unixsock]   <pam\_authtok>\\n
 [pam\_unixsock]   <prompt>\\n
 [your server]    1\\n
 

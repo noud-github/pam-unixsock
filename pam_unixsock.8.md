@@ -12,7 +12,7 @@ pam_unixsock - PAM module to send credentials to a unix socket
 
 # Synopsis
 
-**pam_unixsock.so** [**hidden**] [**timeout**] [**debug**] [*PROMPT*]
+**pam_unixsock.so** [**hidden**] [**timeout**] [**debug**]
 
 # Description
 
@@ -34,11 +34,12 @@ given, the text is used to prompt the user for another authentication token.
 **hidden**
 :  when prompting for another authentication token, hide the input
 
+
 # Protocol
 
 **pam_unixsock** implements an extremely simple socket protocol whereby it passes an username, the
-PAM service, and the second token (i.e. **PROMPT**) (separated by new lines) to the Unix socket and
-then your server simply replies with a 0 or 1:
+PAM service, a potential password or second token (i.e. **PROMPT**) (separated by new lines) to the
+Unix socket and then your server simply replies with a 0 or 1:
 
     [pam_unixsock]   john_smith\n
     [pam_unixsock]   <pam_service>\n
