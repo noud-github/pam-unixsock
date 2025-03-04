@@ -38,7 +38,9 @@ static int connect_to_socket(int timeout)
 	setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
 	if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		syslog(LOG_ERR, "pam_unixsock(:auth): connect to socket %s failed: %s", SOCKET_PATH, strerror(errno));
+		syslog(LOG_ERR,
+		       "pam_unixsock(:auth): connect to socket %s failed: %s",
+		       SOCKET_PATH, strerror(errno));
 		close(sockfd);
 		return -1;
 	}
@@ -48,16 +50,19 @@ static int connect_to_socket(int timeout)
 static int send_credentials(int sockfd, const char *username,
 			    const char *service, const char *prompt_response)
 {
-	dprintf(sockfd, "%s\n%s\n%s\n", username, service, prompt_response ? prompt_response : "");
+	dprintf(sockfd, "%s\n%s\n%s\n", username, service,
+		prompt_response ? prompt_response : "");
 	char response;
 	if (debug) {
 		syslog(LOG_INFO,
-		       "pam_unixsock(%s:auth): wrote credentials to socket %s for %s", service, SOCKET_PATH, username);
+		       "pam_unixsock(%s:auth): wrote credentials to socket %s for %s",
+		       service, SOCKET_PATH, username);
 	}
 	if (read(sockfd, &response, 1) == 1 && response == '1') {
 		if (debug) {
 			syslog(LOG_INFO,
-			       "pam_unixsock(%s:auth): positive response from server seen for %s", service, username);
+			       "pam_unixsock(%s:auth): positive response from server seen for %s",
+			       service, username);
 		}
 		return PAM_SUCCESS;
 	}
@@ -82,7 +87,8 @@ char *concat_with_space(const char *a, const char *b)
 	return result;
 }
 
-PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
+PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
+				   const char **argv)
 {
 	int retval;
 	char *prompt = NULL;
@@ -123,21 +129,26 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		retval = pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		if (retval != PAM_SUCCESS) {
-			syslog(LOG_ERR, "pam_unixsock(:auth): get conv returned error: %s", pam_strerror(pamh, retval));
+			syslog(LOG_ERR,
+			       "pam_unixsock(:auth): get conv returned error: %s",
+			       pam_strerror(pamh, retval));
 			return retval;
 		}
 		if (!conv || !conv->conv) {
-			syslog(LOG_ERR, "pam_unixsock(:auth): conv() function invalid");
+			syslog(LOG_ERR,
+			       "pam_unixsock(:auth): conv() function invalid");
 			return PAM_CONV_ERR;
 		}
 
 		pmsg[0] = &msg[0];
 		msg[0].msg = prompt;
-		msg[0].msg_style = hidden ? PAM_PROMPT_ECHO_OFF : PAM_PROMPT_ECHO_ON;
+		msg[0].msg_style =
+		    hidden ? PAM_PROMPT_ECHO_OFF : PAM_PROMPT_ECHO_ON;
 		retval = conv->conv(1, pmsg, &resp, conv->appdata_ptr);
 		if (retval != PAM_SUCCESS) {
 			syslog(LOG_ERR,
-			       "pam_unixsock(:auth): conv->conv returned error: %s", pam_strerror(pamh, retval));
+			       "pam_unixsock(:auth): conv->conv returned error: %s",
+			       pam_strerror(pamh, retval));
 			return retval;
 		}
 		prompt_response = resp->resp;
@@ -159,7 +170,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	return retval;
 }
 
-PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)
+PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc,
+			      const char **argv)
 {
 	return PAM_SUCCESS;
 }
