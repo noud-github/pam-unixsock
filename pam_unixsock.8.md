@@ -20,19 +20,20 @@ This code is a pluggable authentication module (PAM) that redirects the credenti
 socket. The server listening on that socket is then free to do many more complex things, because
 it's free from the calling process' address space. The Unix socket defaults to
 `/var/run/pam_unix.sock`. The protocol is described below and is fairly simplistic. If *PROMPT* is
-given, the text is used to prompt the user for another (2FA) authentication token.
+given, the text is used to prompt the user for another (2FA) authentication token. This module only
+implements the *auth* module.
 
 # Options
 
 **debug**
-:  log debug information
+:  log debug information with `syslog(3)`.
 
 **timeout**
 :  set the timeout in seconds for how long to wait for a response from the server, the default is
-   `timeout=2`
+   `timeout=2`.
 
 **hidden**
-:  when prompting for another authentication token, hide the input
+:  when prompting for another authentication token, hide the input.
 
 # Protocol
 
