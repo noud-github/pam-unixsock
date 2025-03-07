@@ -88,6 +88,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	int retval;
 	char *prompt = NULL;
 	bool hidden = false;
+	bool failopen = false;
 	int timeout = DEFAULT_TIMEOUT;
 
 	for (int i = 0; i < argc; i++) {
@@ -104,14 +105,17 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			timeout = atoi(argv[i] + 8);
 			continue;
 		}
-
+		if (strncmp(argv[i], "failopen", 8) == 0) {
+			failopen = true;
+			continue;
+		}
 		prompt = concat_with_space(prompt, argv[i]);
 
 	}
 
 	
 
-	const char *username,  *service, *prompt_response = "";
+	const char *username, *service, *prompt_response = "";
 	pam_get_user(pamh, &username, NULL);
 	pam_get_item(pamh, PAM_SERVICE, (const void **)&service);
 	
@@ -128,7 +132,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		retval = pam_get_item(pamh, PAM_CONV, (const void **)&conv);
 		if (retval != PAM_SUCCESS) {
 			syslog(LOG_ERR, "pam_unixsock(:auth): get conv returned error: %s", pam_strerror(pamh, retval));
-			return retval;
+			return PAM_CONV_ERR;
 		}
 		if (!conv || !conv->conv) {
 			syslog(LOG_ERR, "pam_unixsock(:auth): conv() function invalid");
@@ -142,24 +146,21 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		if (retval != PAM_SUCCESS) {
 			syslog(LOG_ERR,
 			       "pam_unixsock(:auth): conv->conv returned error: %s", pam_strerror(pamh, retval));
-			return retval;
+			return PAM_CONV_ERR;
 		}
 		prompt_response = resp->resp;
-//              pam_prompt(pamh, (char **)&prompt_response, "%s", prompt); // for other pam modules?? option!?
 	}
 	free(prompt);
 
 	int sockfd = connect_to_socket(timeout);
 	if (sockfd < 0) {
-		return PAM_SUCCESS;	// Assume success on timeout or failure to connect
+		if (!failopen) {
+			return PAM_AUTH_ERR;
+		}
+		return PAM_SUCCESS;
 	}
 
 	retval = send_credentials(sockfd, username, service, prompt_response);
-	if (retval < 0) {
-		syslog(LOG_ERR,
-		       "pam_unixsock(%s:auth): sending credentials to socket %s failed: %s",
-		       service, SOCKET_PATH, strerror(errno));
-	}
 	close(sockfd);
 	return retval;
 }
