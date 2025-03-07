@@ -45,11 +45,9 @@ static int connect_to_socket(int timeout)
 	return sockfd;
 }
 
-static int send_credentials(int sockfd, const char *username,
-			    const char *service, const char *prompt_response)
+static int send_credentials(int sockfd, const char *username, const char *service, const char *prompt_response)
 {
-	dprintf(sockfd, "%s\n%s\n%s\n", username, service,
-		 prompt_response ? prompt_response : "");
+	dprintf(sockfd, "%s\n%s\n%s\n", username, service, prompt_response ? prompt_response : "");
 	char response;
 	if (debug) {
 		syslog(LOG_INFO,

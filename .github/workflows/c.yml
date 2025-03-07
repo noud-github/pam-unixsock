@@ -1,0 +1,17 @@
+name: C
+on: [push, pull_request]
+jobs:
+
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up environment
+      run: sudo apt install -y libpam0g libpam0g-dev make
+
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Build
+      run: make

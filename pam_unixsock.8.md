@@ -8,11 +8,11 @@ fullname="Miek Gieben"
 
 # NAME
 
-pam_unixsock - PAM module to send credentials to a unix socket
+pam_unixsock - PAM module to send credentials to a Unix socket
 
 # Synopsis
 
-**pam_unixsock.so** [**hidden**] [**timeout**] [**debug**]
+**pam_unixsock.so** [**hidden**] [**failopen**] [**timeout**] [**debug**] [*PROMPT*]
 
 # Description
 
@@ -20,19 +20,23 @@ This code is a pluggable authentication module (PAM) that redirects the credenti
 socket. The server listening on that socket is then free to do many more complex things, because
 it's free from the calling process' address space. The Unix socket defaults to
 `/var/run/pam_unix.sock`. The protocol is described below and is fairly simplistic. If *PROMPT* is
-given, the text is used to prompt the user for another authentication token.
+given, the text is used to prompt the user for another (2FA) authentication token. This module only
+implements the *auth* module.
 
 # Options
 
 **debug**
-:  print debug information
+:  log debug information with `syslog(3)`.
 
 **timeout**
 :  set the timeout in seconds for how long to wait for a response from the server, the default is
-   `timeout=2`
+   `timeout=2`.
 
 **hidden**
-:  when prompting for another authentication token, hide the input
+:  when prompting for another authentication token, hide the input.
+
+**failopen**
+:  when set ignore failures to *connect* to the Unix socket and return PAM_SUCCESS.
 
 
 # Protocol
@@ -46,7 +50,7 @@ Unix socket and then your server simply replies with a 0 or 1:
     [pam_unixsock]   <prompt>\n
     [your server]    1\n
 
-If your server answers within `timeout` (2 by default) with a `1` you are authenticated.
+If your server answers within `timeout` with a `1` you are considered authenticated.
 
 # Configuration
 

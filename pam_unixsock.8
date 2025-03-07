@@ -3,11 +3,11 @@
 
 .SH "NAME"
 .PP
-pam_unixsock \- PAM module to send credentials to a unix socket
+pam_unixsock \- PAM module to send credentials to a Unix socket
 
 .SH "SYNOPSIS"
 .PP
-\fBpam_unixsock.so\fP [\fBhidden\fP] [\fBno_authtok\fP] [\fBtimeout\fP] [\fBdebug\fP] [\fIPROMPT\fP]
+\fBpam_unixsock.so\fP [\fBhidden\fP] [\fBfailopen\fP] [\fBtimeout\fP] [\fBdebug\fP] [\fIPROMPT\fP]
 
 .SH "DESCRIPTION"
 .PP
@@ -15,26 +15,30 @@ This code is a pluggable authentication module (PAM) that redirects the credenti
 socket. The server listening on that socket is then free to do many more complex things, because
 it's free from the calling process' address space. The Unix socket defaults to
 \fB\fC/var/run/pam_unix.sock\fR. The protocol is described below and is fairly simplistic. If \fIPROMPT\fP is
-given, the text is used to prompt the user for another authentication token.
+given, the text is used to prompt the user for another (2FA) authentication token. This module only
+implements the \fIauth\fP module.
 
 .SH "OPTIONS"
 .TP
 \fBdebug\fP
-print debug information
+log debug information with \fB\fCsyslog(3)\fR.
 .TP
 \fBtimeout\fP
 set the timeout in seconds for how long to wait for a response from the server, the default is
-\fB\fCtimeout=2\fR
+\fB\fCtimeout=2\fR.
 .TP
 \fBhidden\fP
-when prompting for another authentication token, hide the input
+when prompting for another authentication token, hide the input.
+.TP
+\fBfailopen\fP
+when set ignore failures to \fIconnect\fP to the Unix socket and return PAM_SUCCESS.
 
 
 .SH "PROTOCOL"
 .PP
 \fBpam_unixsock\fP implements an extremely simple socket protocol whereby it passes an username, the
-PAM service, a potential password or second token (i.e. \fBPROMPT\fP) (separated by new lines) to the
-Unix socket and then your server simply replies with a 0 or 1:
+PAM service, and the second token (i.e. \fBPROMPT\fP) (separated by new lines) to the Unix socket and
+then your server simply replies with a 0 or 1:
 
 .PP
 .RS
@@ -49,7 +53,7 @@ Unix socket and then your server simply replies with a 0 or 1:
 .RE
 
 .PP
-If your server answers within \fB\fCtimeout\fR (2 by default) with a \fB\fC1\fR you are authenticated.
+If your server answers within \fB\fCtimeout\fR with a \fB\fC1\fR you are considered authenticated.
 
 .SH "CONFIGURATION"
 .PP
@@ -85,6 +89,10 @@ UsePAM yes
 .PP
 Note that with public key authentication this is bypassed, and you log in without being asked for a
 second token.
+
+.SH "NOTES"
+.PP
+In Fedora the socket can't be written to by sshd because selinux does not allow it.
 
 .SH "AUTHOR"
 .SH ""
